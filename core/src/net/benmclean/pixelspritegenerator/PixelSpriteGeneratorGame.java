@@ -30,8 +30,6 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
                 0, 0, 0, 0, 0, 0
         }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
 
-        batch = new SpriteBatch();
-
         Pixmap pixmap = new Pixmap(sprite.getHeight(), sprite.getWidth(), Pixmap.Format.RGBA8888 );
         int[] spritePixels = sprite.renderPixelData();
         int height = sprite.getHeight();
@@ -40,12 +38,10 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
         for (int x=0; x<height; x++)
             for (int y=0; y<width; y++) {
                 int i = (width * y + x)*4;
-
                 int red = spritePixels[i];
                 int green = spritePixels[i + 1];
                 int blue = spritePixels[i + 2];
                 int alpha = spritePixels[i + 3];
-
                 pixmap.drawPixel(x, y, Color.rgba8888(red/255f,green/255f,blue/255f,alpha/255f));
             }
 
@@ -56,6 +52,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+        batch = new SpriteBatch();
         long SEED = System.currentTimeMillis();
         newSprite(SEED);
 	}
