@@ -7,12 +7,21 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 import net.benmclean.pixelspritegenerator.pixelspritegenerator.Mask;
 import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
 
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture pixmaptex;
+	private SpriteBatch batch;
+	private Texture pixmaptex;
+    private Stage stage;
+    private VisTable table;
+    private VisTextButton timerButton;
 
     public void newSprite (long SEED) {
         Sprite sprite = new Sprite(12, 12, new Mask(new int[]{
@@ -52,10 +61,33 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+        VisUI.load();
         batch = new SpriteBatch();
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+
+        table = new VisTable();
+        table.setFillParent(true);
+        stage.addActor(table);
+
+        table.setDebug(true);
+
+        timerButton = new VisTextButton("Seed from timer");
+        timerButton.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                newSprite(System.currentTimeMillis());
+                return true;
+            }
+        });
+        table.add(timerButton);
+
         long SEED = System.currentTimeMillis();
         newSprite(SEED);
 	}
+
+    public void resize (int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
 
 	@Override
 	public void render () {
@@ -64,5 +96,12 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 		batch.begin();
         batch.draw(pixmaptex, 16, 16, pixmaptex.getHeight() * 16, pixmaptex.getWidth() * 16);
 		batch.end();
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
 	}
+
+    public void dispose () {
+        stage.dispose();
+        VisUI.dispose();
+    }
 }
