@@ -13,17 +13,23 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisTextField;
 import net.benmclean.pixelspritegenerator.pixelspritegenerator.Mask;
 import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
 
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
-	private SpriteBatch batch;
+    private long SEED;
+    private SpriteBatch batch;
 	private Texture pixmaptex;
     private Stage stage;
     private VisTable table;
+    private VisTextField seedTextField;
+    private VisTextButton seedButton;
     private VisTextButton timerButton;
 
     public void newSprite (long SEED) {
+        this.SEED = SEED;
+        seedTextField.setText(Long.toString(SEED));
         Sprite sprite = new Sprite(12, 12, new Mask(new int[]{
                 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 1, 1,
@@ -68,9 +74,25 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 
         table = new VisTable();
         table.setFillParent(true);
-        stage.addActor(table);
 
-        table.setDebug(true);
+        //table.setDebug(true);
+
+        seedTextField = new VisTextField();
+        table.add(seedTextField);
+
+        seedButton = new VisTextButton("Seed");
+        seedButton.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                try {
+                    newSprite(Long.parseLong(seedTextField.getText()));
+                }
+                catch (NumberFormatException exception){};
+                return true;
+            }
+        });
+        table.add(seedButton);
+
+        table.row();
 
         timerButton = new VisTextButton("Seed from timer");
         timerButton.addListener(new InputListener() {
@@ -81,8 +103,10 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
         });
         table.add(timerButton);
 
-        long SEED = System.currentTimeMillis();
-        newSprite(SEED);
+        table.center().top();
+        stage.addActor(table);
+
+        newSprite(System.currentTimeMillis());
 	}
 
     public void resize (int width, int height) {
@@ -94,7 +118,8 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-        batch.draw(pixmaptex, 16, 16, pixmaptex.getHeight() * 16, pixmaptex.getWidth() * 16);
+        final int scale = 32;
+        batch.draw(pixmaptex, scale, scale, pixmaptex.getHeight() * scale, pixmaptex.getWidth() * scale);
 		batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
