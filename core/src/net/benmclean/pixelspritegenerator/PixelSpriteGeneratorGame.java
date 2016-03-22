@@ -13,10 +13,8 @@ import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture pixmaptex;
-	
-	@Override
-	public void create () {
-        int SEED = (int)System.currentTimeMillis();
+
+    public void newSprite (long SEED) {
         Sprite sprite = new Sprite(12, 12, new Mask(new int[]{
                 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 1, 1,
@@ -32,7 +30,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
                 0, 0, 0, 0, 0, 0
         }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
 
-		batch = new SpriteBatch();
+        batch = new SpriteBatch();
 
         Pixmap pixmap = new Pixmap(sprite.getHeight(), sprite.getWidth(), Pixmap.Format.RGBA8888 );
         int[] spritePixels = sprite.renderPixelData();
@@ -51,9 +49,15 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
                 pixmap.drawPixel(x, y, Color.rgba8888(red/255f,green/255f,blue/255f,alpha/255f));
             }
 
-		pixmaptex = new Texture( pixmap );
+        pixmaptex = new Texture( pixmap );
         pixmaptex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-		pixmap.dispose();
+        pixmap.dispose();
+    }
+	
+	@Override
+	public void create () {
+        long SEED = System.currentTimeMillis();
+        newSprite(SEED);
 	}
 
 	@Override

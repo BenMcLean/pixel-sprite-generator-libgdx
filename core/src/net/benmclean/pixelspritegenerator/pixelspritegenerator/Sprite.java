@@ -30,7 +30,7 @@ public class Sprite {
     double brightnessNoise;
     double saturation;
     Random random;
-    int SEED;
+    long SEED;
 
     public Sprite(int width, int height, Mask mask,
                   boolean colored, //=true,
@@ -38,7 +38,7 @@ public class Sprite {
                   double colorVariations, //=0.2,
                   double brightnessNoise, //=0.3,
                   double saturation, //=0.5,
-                  int SEED) //=0
+                  long SEED) //=0
     {
         this.width = mask.width * (mask.mirrorX ? 2 : 1);
         this.height = mask.height * (mask.mirrorY ? 2 : 1);
