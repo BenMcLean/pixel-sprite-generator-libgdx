@@ -12,7 +12,6 @@ import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
 
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	SpriteBatch batch;
-	Texture img;
 	Texture pixmaptex;
 	
 	@Override
@@ -34,13 +33,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
         }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
 
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
 
-        /*
-		Pixmap pixmap = new Pixmap( 64, 64, Pixmap.Format.RGBA8888 );
-		pixmap.setColor( 0, 1, 0, 0.75f );
-		pixmap.fillCircle( 32, 32, 32 );
-		*/
         Pixmap pixmap = new Pixmap(sprite.getHeight(), sprite.getWidth(), Pixmap.Format.RGBA8888 );
         int[] spritePixels = sprite.renderPixelData();
         int height = sprite.getHeight();
@@ -65,10 +58,9 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		//batch.draw(img, 0, 0);
         batch.draw(pixmaptex, 16, 16, pixmaptex.getHeight() * 16, pixmaptex.getWidth() * 16);
 		batch.end();
 	}
