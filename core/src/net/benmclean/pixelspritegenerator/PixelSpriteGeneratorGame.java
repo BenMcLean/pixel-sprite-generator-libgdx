@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -69,7 +70,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	public void create () {
         VisUI.load();
         batch = new SpriteBatch();
-        stage = new Stage();
+        stage = new Stage(new FitViewport(640, 480));
         Gdx.input.setInputProcessor(stage);
 
         table = new VisTable();
@@ -80,7 +81,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
         seedTextField = new VisTextField();
         table.add(seedTextField);
 
-        seedButton = new VisTextButton("Seed");
+        seedButton = new VisTextButton("Seed from input");
         seedButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 try {
@@ -91,8 +92,6 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
             }
         });
         table.add(seedButton);
-
-        table.row();
 
         timerButton = new VisTextButton("Seed from timer");
         timerButton.addListener(new InputListener() {
@@ -118,8 +117,8 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-        final int scale = 32;
-        batch.draw(pixmaptex, scale, scale, pixmaptex.getHeight() * scale, pixmaptex.getWidth() * scale);
+        final float scale = stage.getViewport().getScreenHeight() * 0.5f;
+        batch.draw(pixmaptex, scale/12, scale/12, scale, scale);
 		batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
