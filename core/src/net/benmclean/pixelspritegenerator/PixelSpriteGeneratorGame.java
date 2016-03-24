@@ -70,7 +70,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 	public void create () {
         VisUI.load();
         batch = new SpriteBatch();
-        stage = new Stage(new FitViewport(640, 480));
+        stage = new Stage(new FitViewport(640, 320), batch);
         Gdx.input.setInputProcessor(stage);
 
         table = new VisTable();
@@ -117,7 +117,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-        final float scale = stage.getViewport().getScreenHeight() * 0.5f;
+        final float scale = 256;
         batch.draw(pixmaptex, scale/12, scale/12, scale, scale);
 		batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
