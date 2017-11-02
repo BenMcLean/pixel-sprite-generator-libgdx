@@ -2,24 +2,8 @@ package net.benmclean.pixelspritegenerator.pixelspritegenerator;
 
 import java.util.Random;
 
-/**
- * The Sprite class makes use of a Mask instance to generate a 2D sprite on a
- * HTML canvas.
- * <p>
- * var options = {
- * colored         : true,   // boolean
- * edgeBrightness  : 0.3,    // value from 0 to 1
- * colorVariations : 0.2,    // value from 0 to 1
- * brightnessNoise : 0.3,    // value from 0 to 1
- * saturation      : 0.5     // value from 0 to 1
- * }
- *
- * @param {mask}
- * @param {options}
- * @class Sprite
- * @constructor
- */
-public class Sprite {
+public class GenSprite {
+
     public int width;
     public int height;
     public Mask mask;
@@ -32,7 +16,7 @@ public class Sprite {
     Random random;
     long SEED;
 
-    public Sprite(int width, int height, Mask mask,
+    public GenSprite(int width, int height, Mask mask,
                   boolean colored, //=true,
                   double edgeBrightness, //=0.3,
                   double colorVariations, //=0.2,
@@ -384,5 +368,40 @@ public class Sprite {
             output += '\n';
         }
         return output;
+    }
+
+    /**
+     *   The Mask class defines a 2D template form which sprites can be generated.
+     *
+     *   @class Mask
+     *   @constructor
+     *   @param {data} Integer array describing which parts of the sprite should be
+     *   empty, body, and border. The mask only defines a semi-ridgid stucture
+     *   which might not strictly be followed based on randomly generated numbers.
+     *
+     *      -1 = Always border (black)
+     *       0 = Empty
+     *       1 = Randomly chosen Empty/Body
+     *       2 = Randomly chosen Border/Body
+     *
+     *   @param {width} Width of the mask data array
+     *   @param {height} Height of the mask data array
+     *   @param {mirrorX} A boolean describing whether the mask should be mirrored on the x axis
+     *   @param {mirrorY} A boolean describing whether the mask should be mirrored on the y axis
+     */
+    public static class Mask {
+        public int width;
+        public int height;
+        public int[] data;
+        public boolean mirrorX;
+        public boolean mirrorY;
+
+        public Mask(int[] data, int width, int height, boolean mirrorX, boolean mirrorY) {
+            this.width   = width;
+            this.height  = height;
+            this.data    = data;
+            this.mirrorX = mirrorX;
+            this.mirrorY = mirrorY;
+        }
     }
 }

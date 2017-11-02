@@ -16,8 +16,7 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
-import net.benmclean.pixelspritegenerator.pixelspritegenerator.Mask;
-import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
+import net.benmclean.pixelspritegenerator.pixelspritegenerator.GenSprite;
 
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
     private long SEED;
@@ -104,7 +103,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
     public void newSprite (long SEED) {
         this.SEED = SEED;
         seedTextField.setText(Long.toString(SEED));
-        Sprite sprite = new Sprite(12, 12, new Mask(new int[]{
+        GenSprite sprite = new GenSprite(12, 12, new GenSprite.Mask(new int[]{
                 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 1, 1,
                 0, 0, 0, 0, 1,-1,
