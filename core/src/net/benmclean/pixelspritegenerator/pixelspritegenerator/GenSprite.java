@@ -2,6 +2,23 @@ package net.benmclean.pixelspritegenerator.pixelspritegenerator;
 
 import java.util.Random;
 
+/**
+ * The Sprite class makes use of a Mask instance to generate a 2D sprite on a
+ * HTML canvas.
+ * <p>
+ * var options = {
+ * colored         : true,   // boolean
+ * edgeBrightness  : 0.3,    // value from 0 to 1
+ * colorVariations : 0.2,    // value from 0 to 1
+ * brightnessNoise : 0.3,    // value from 0 to 1
+ * saturation      : 0.5     // value from 0 to 1
+ * }
+ *
+ * @param {mask}
+ * @param {options}
+ * @class Sprite
+ * @constructor
+ */
 public class GenSprite {
 
     public int width;
