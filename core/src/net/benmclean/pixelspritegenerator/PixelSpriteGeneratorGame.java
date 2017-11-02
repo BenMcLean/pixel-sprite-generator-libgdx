@@ -105,7 +105,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
     public void newSprite(long SEED) {
         this.SEED = SEED;
         seedTextField.setText(Long.toString(SEED));
-        Pixmap pixmap = new GenSprite(new GenSprite.Mask(new int[]{
+        Pixmap pixmap = GenSprite.generatePixmap(new GenSprite.Mask(new int[]{
                 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 1, 1,
                 0, 0, 0, 0, 1, -1,
@@ -118,7 +118,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
                 0, 1, 1, 1, 1, -1,
                 0, 0, 0, 1, 1, 1,
                 0, 0, 0, 0, 0, 0
-        }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED).generatePixmap();
+        }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
 
         pixmaptex = new Texture(pixmap);
         pixmaptex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
