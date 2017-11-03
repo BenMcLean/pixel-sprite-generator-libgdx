@@ -64,19 +64,12 @@ public class GenSprite {
      * @returns {undefined}
      */
     private void init() {
-        this.initData();
-        this.applyMask();
-        this.generateRandomSample();
-
-        if (this.mask.mirrorX) {
-            this.mirrorX();
-        }
-
-        if (this.mask.mirrorY) {
-            this.mirrorY();
-        }
-
-        this.generateEdges();
+        initData();
+        applyMask();
+        generateRandomSample();
+        if (mask.mirrorX) mirrorX();
+        if (mask.mirrorY) mirrorY();
+        generateEdges();
     }
 
     public int getWidth() {
@@ -101,7 +94,7 @@ public class GenSprite {
      * @returns {undefined}
      */
     public int getData(int x, int y) {
-        return this.data[y * this.width + x];
+        return data[y * width + x];
     }
 
     /**
@@ -119,7 +112,7 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void setData(int x, int y, int value) {
-        this.data[y * this.width + x] = value;
+        data[y * width + x] = value;
     }
 
     /**
@@ -129,11 +122,9 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void initData() {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                this.setData(x, y, -1);
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(x, y, -1);
     }
 
     /**
@@ -143,13 +134,9 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void mirrorX() {
-        int h = height;
-        int w = (int) Math.floor(width / (double) 2);
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
                 setData(width - x - 1, y, getData(x, y));
-            }
-        }
     }
 
     /**
@@ -159,13 +146,9 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void mirrorY() {
-        int h = (int) Math.floor(height / (double) 2);
-        int w = width;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
                 setData(x, height - y - 1, getData(x, y));
-            }
-        }
     }
 
     /**
@@ -178,14 +161,9 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void applyMask() {
-        int h = this.mask.height;
-        int w = this.mask.width;
-
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                this.setData(x, y, this.mask.data[y * w + x]);
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(x, y, mask.data[y * mask.width + x]);
     }
 
     /**
@@ -202,21 +180,16 @@ public class GenSprite {
      */
     public void generateRandomSample() {
         random = new Random(SEED);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int val = this.getData(x, y);
-                if (val == 1) {
-                    val = random.nextInt(2);
-                } else if (val == 2) {
-                    if (random.nextDouble() > 0.5) {
-                        val = 1;
-                    } else {
-                        val = -1;
-                    }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                switch (getData(x, y)) {
+                    case 1:
+                        setData(x, y, random.nextInt(2));
+                        break;
+                    case 2:
+                        setData(x, y, random.nextDouble() > 0.5 ? 1 : -1);
+                        break;
                 }
-                this.setData(x, y, val);
-            }
-        }
     }
 
     /**
@@ -227,24 +200,19 @@ public class GenSprite {
      * @returns {undefined}
      */
     public void generateEdges() {
-        for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++) {
-                if (this.getData(x, y) > 0) {
-                    if (y - 1 >= 0 && getData(x, y - 1) == 0) {
+                if (getData(x, y) > 0) {
+                    if (y - 1 >= 0 && getData(x, y - 1) == 0)
                         setData(x, y - 1, -1);
-                    }
-                    if (y + 1 < height && getData(x, y + 1) == 0) {
+                    if (y + 1 < height && getData(x, y + 1) == 0)
                         setData(x, y + 1, -1);
-                    }
-                    if (x - 1 >= 0 && getData(x - 1, y) == 0) {
+                    if (x - 1 >= 0 && getData(x - 1, y) == 0)
                         setData(x - 1, y, -1);
-                    }
-                    if (x + 1 < width && getData(x + 1, y) == 0) {
+                    if (x + 1 < width && getData(x + 1, y) == 0)
                         setData(x + 1, y, -1);
-                    }
                 }
             }
-        }
     }
 
     /**
@@ -293,19 +261,12 @@ public class GenSprite {
      */
     public int[] renderPixelData() {
         random = new Random(SEED);
-        boolean isVerticalGradient = random.nextDouble() > 0.5;
+        int[] pixels = new int[height * width * 4];
         double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
         double hue = random.nextDouble();
-        int[] pixels = new int[height * width * 4];
-
-        int ulen, vlen;
-        if (isVerticalGradient) {
-            ulen = height;
-            vlen = width;
-        } else {
-            ulen = width;
-            vlen = height;
-        }
+        boolean isVerticalGradient = random.nextDouble() > 0.5;
+        int ulen = isVerticalGradient ? height : width;
+        int vlen = isVerticalGradient ? width : height;
 
         for (int u = 0; u < ulen; u++) {
             // Create a non-uniform random number between 0 and 1 (lower numbers more likely)
@@ -313,59 +274,46 @@ public class GenSprite {
                     + (random.nextDouble() * 2 - 1)
                     + (random.nextDouble() * 2 - 1)) / 3);
             // Only change the color sometimes (values above 0.8 are less likely than others)
-            if (isNewColor > (1 - this.colorVariations)) {
-                hue = random.nextDouble();
-            }
-
-            //MessageBox.Show(this.toString());
+            if (isNewColor > 1 - colorVariations) hue = random.nextDouble();
 
             for (int v = 0; v < vlen; v++) {
                 int val, index;
                 if (isVerticalGradient) {
-                    val = this.getData(v, u);
+                    val = getData(v, u);
                     index = (u * vlen + v) * 4;
                 } else {
-                    val = this.getData(u, v);
+                    val = getData(u, v);
                     index = (v * ulen + u) * 4;
                 }
 
                 double[] rgb = new double[]{1, 1, 1};
 
                 if (val != 0) {
-                    if (this.colored) {
+                    if (colored) {
                         // Fade brightness away towards the edges
-                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - this.brightnessNoise)
-                                + random.nextDouble() * this.brightnessNoise;
+                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - brightnessNoise)
+                                + random.nextDouble() * brightnessNoise;
 
                         // Get the RGB color value
-                        rgb = this.hslToRgb(hue, saturation, brightness);
+                        rgb = hslToRgb(hue, saturation, brightness);
 
                         // If this is an edge, then darken the pixel
                         if (val == -1) {
-                            rgb[0] *= this.edgeBrightness;
-                            rgb[1] *= this.edgeBrightness;
-                            rgb[2] *= this.edgeBrightness;
+                            rgb[0] *= edgeBrightness;
+                            rgb[1] *= edgeBrightness;
+                            rgb[2] *= edgeBrightness;
                         }
-
-                    } else {
+                    } else if (val == -1)
                         // Not colored, simply output black
-                        if (val == -1) {
-                            rgb = new double[]{0, 0, 0};
-                        }
-                    }
+                        rgb = new double[]{0, 0, 0};
                 }
 
                 pixels[index + 0] = (int) (rgb[0] * 255);
                 pixels[index + 1] = (int) (rgb[1] * 255);
                 pixels[index + 2] = (int) (rgb[2] * 255);
-                if (val != 0) {
-                    pixels[index + 3] = 255;
-                } else {
-                    pixels[index + 3] = 0;
-                }
+                pixels[index + 3] = val != 0 ? 255 : 0;
             }
         }
-
         return pixels;
     }
 
@@ -373,7 +321,7 @@ public class GenSprite {
         String output = "";
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                double val = this.getData(x, y);
+                double val = getData(x, y);
                 output += val >= 0 ? " " + val : "" + val;
             }
             output += '\n';
