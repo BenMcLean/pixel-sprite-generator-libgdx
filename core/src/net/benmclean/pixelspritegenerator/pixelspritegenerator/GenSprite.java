@@ -250,73 +250,6 @@ public class GenSprite {
         }
     }
 
-    /**
-     * This method renders out the template data to a HTML canvas to finally
-     * create the sprite.
-     * <p>
-     * (note: only template locations with the values of -1 (border) are rendered)
-     *
-     * @method renderPixelData
-     * @returns {undefined}
-     */
-    public int[] renderPixelData() {
-        random = new Random(SEED);
-        int[] pixels = new int[width * height * 4];
-        double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
-        double hue = random.nextDouble();
-        boolean isVerticalGradient = random.nextDouble() > 0.5;
-        int ulen = isVerticalGradient ? height : width;
-        int vlen = isVerticalGradient ? width : height;
-
-        for (int u = 0; u < ulen; u++) {
-            // Create a non-uniform random number between 0 and 1 (lower numbers more likely)
-            double isNewColor = Math.abs(((random.nextDouble() * 2 - 1)
-                    + (random.nextDouble() * 2 - 1)
-                    + (random.nextDouble() * 2 - 1)) / 3);
-            // Only change the color sometimes (values above 0.8 are less likely than others)
-            if (isNewColor > 1 - colorVariations) hue = random.nextDouble();
-
-            for (int v = 0; v < vlen; v++) {
-                int val, index;
-                if (isVerticalGradient) {
-                    val = getData(v, u);
-                    index = (u * vlen + v) * 4;
-                } else {
-                    val = getData(u, v);
-                    index = (v * ulen + u) * 4;
-                }
-
-                double[] rgb = new double[]{1, 1, 1};
-
-                if (val != 0) {
-                    if (colored) {
-                        // Fade brightness away towards the edges
-                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - brightnessNoise)
-                                + random.nextDouble() * brightnessNoise;
-
-                        // Get the RGB color value
-                        rgb = hslToRgb(hue, saturation, brightness);
-
-                        // If this is an edge, then darken the pixel
-                        if (val == -1) {
-                            rgb[0] *= edgeBrightness;
-                            rgb[1] *= edgeBrightness;
-                            rgb[2] *= edgeBrightness;
-                        }
-                    } else if (val == -1)
-                        // Not colored, simply output black
-                        rgb = new double[]{0, 0, 0};
-                }
-
-                pixels[index + 0] = (int) (rgb[0] * 255);
-                pixels[index + 1] = (int) (rgb[1] * 255);
-                pixels[index + 2] = (int) (rgb[2] * 255);
-                pixels[index + 3] = val == 0 ? 0 : 255;
-            }
-        }
-        return pixels;
-    }
-
     public String toString() {
         String output = "";
         for (int y = 0; y < height; y++) {
@@ -365,16 +298,65 @@ public class GenSprite {
 
     public Pixmap generatePixmap() {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-        int[] spritePixels = renderPixelData();
-        for (int y = 0; y < height; y++)
-            for (int x = 0; x < width; x++) {
-                int i = (width * y + x) * 4;
-                int red = spritePixels[i];
-                int green = spritePixels[i + 1];
-                int blue = spritePixels[i + 2];
-                int alpha = spritePixels[i + 3];
-                pixmap.drawPixel(x, y, Color.rgba8888(red / 255f, green / 255f, blue / 255f, alpha / 255f));
+        random = new Random(SEED);
+        int[] pixels = new int[width * height * 4];
+        double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
+        double hue = random.nextDouble();
+        boolean isVerticalGradient = random.nextDouble() > 0.5;
+        int ulen = isVerticalGradient ? height : width;
+        int vlen = isVerticalGradient ? width : height;
+
+        for (int u = 0; u < ulen; u++) {
+            // Create a non-uniform random number between 0 and 1 (lower numbers more likely)
+            double isNewColor = Math.abs(((random.nextDouble() * 2 - 1)
+                    + (random.nextDouble() * 2 - 1)
+                    + (random.nextDouble() * 2 - 1)) / 3);
+            // Only change the color sometimes (values above 0.8 are less likely than others)
+            if (isNewColor > 1 - colorVariations) hue = random.nextDouble();
+
+            for (int v = 0; v < vlen; v++) {
+                int val, index;
+                if (isVerticalGradient) {
+                    val = getData(v, u);
+                    index = (u * vlen + v) * 4;
+                } else {
+                    val = getData(u, v);
+                    index = (v * ulen + u) * 4;
+                }
+
+                double[] rgb = new double[]{1, 1, 1};
+
+                if (val != 0) {
+                    if (colored) {
+                        // Fade brightness away towards the edges
+                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - brightnessNoise)
+                                + random.nextDouble() * brightnessNoise;
+
+                        // Get the RGB color value
+                        rgb = hslToRgb(hue, saturation, brightness);
+
+                        // If this is an edge, then darken the pixel
+                        if (val == -1) {
+                            rgb[0] *= edgeBrightness;
+                            rgb[1] *= edgeBrightness;
+                            rgb[2] *= edgeBrightness;
+                        }
+                    } else if (val == -1)
+                        // Not colored, simply output black
+                        rgb = new double[]{0, 0, 0};
+                }
+                pixmap.drawPixel(
+                        isVerticalGradient ? v : u,
+                        isVerticalGradient ? u : v,
+                        Color.rgba8888(
+                                (float) rgb[0],
+                                (float) rgb[1],
+                                (float) rgb[2],
+                                val == 0 ? 0f : 1f
+                        )
+                );
             }
+        }
         return pixmap;
     }
 
