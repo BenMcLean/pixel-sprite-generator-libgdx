@@ -261,7 +261,7 @@ public class GenSprite {
      */
     public int[] renderPixelData() {
         random = new Random(SEED);
-        int[] pixels = new int[height * width * 4];
+        int[] pixels = new int[width * height * 4];
         double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
         double hue = random.nextDouble();
         boolean isVerticalGradient = random.nextDouble() > 0.5;
@@ -311,7 +311,7 @@ public class GenSprite {
                 pixels[index + 0] = (int) (rgb[0] * 255);
                 pixels[index + 1] = (int) (rgb[1] * 255);
                 pixels[index + 2] = (int) (rgb[2] * 255);
-                pixels[index + 3] = val != 0 ? 255 : 0;
+                pixels[index + 3] = val == 0 ? 0 : 255;
             }
         }
         return pixels;
@@ -364,10 +364,10 @@ public class GenSprite {
     }
 
     public Pixmap generatePixmap() {
-        Pixmap pixmap = new Pixmap(getHeight(), getWidth(), Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         int[] spritePixels = renderPixelData();
-        for (int x = 0; x < height; x++)
-            for (int y = 0; y < width; y++) {
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++) {
                 int i = (width * y + x) * 4;
                 int red = spritePixels[i];
                 int green = spritePixels[i + 1];
