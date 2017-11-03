@@ -29,19 +29,19 @@ public class GenSprite {
     public Mask mask;
     public int[] data;
     public boolean colored;
-    double edgeBrightness;
-    double colorVariations;
-    double brightnessNoise;
-    double saturation;
-    Random random;
-    long SEED;
+    public float edgeBrightness;
+    public float colorVariations;
+    public float brightnessNoise;
+    public float saturation;
+    public Random random;
+    public long SEED;
 
     public GenSprite(Mask mask,
                      boolean colored, //=true,
-                     double edgeBrightness, //=0.3,
-                     double colorVariations, //=0.2,
-                     double brightnessNoise, //=0.3,
-                     double saturation, //=0.5,
+                     float edgeBrightness, //=0.3,
+                     float colorVariations, //=0.2,
+                     float brightnessNoise, //=0.3,
+                     float saturation, //=0.5,
                      long SEED) //=0
     {
         width = mask.width * (mask.mirrorX ? 2 : 1);
@@ -225,26 +225,26 @@ public class GenSprite {
      * @method hslToRgb
      * @returns {result}
      */
-    public double[] hslToRgb(double h, double s, double l) {
-        double f, p, q, t;
-        int i = (int) Math.floor(h * (double) 6);
+    public float[] hslToRgb(float h, float s, float l) {
+        float f, p, q, t;
+        int i = (int) Math.floor(h * 6f);
         f = h * 6 - i;
         p = l * (1 - s);
         q = l * (1 - f * s);
         t = l * (1 - (1 - f) * s);
         switch (i % 6) {
             case 0:
-                return new double[]{l, t, p};
+                return new float[]{l, t, p};
             case 1:
-                return new double[]{q, l, p};
+                return new float[]{q, l, p};
             case 2:
-                return new double[]{p, l, t};
+                return new float[]{p, l, t};
             case 3:
-                return new double[]{p, q, l};
+                return new float[]{p, q, l};
             case 4:
-                return new double[]{t, p, l};
+                return new float[]{t, p, l};
             case 5:
-                return new double[]{l, p, q};
+                return new float[]{l, p, q};
             default:
                 return null;
         }
@@ -300,8 +300,8 @@ public class GenSprite {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         random = new Random(SEED);
         int[] pixels = new int[width * height * 4];
-        double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
-        double hue = random.nextDouble();
+        float saturation = Math.max(Math.min(random.nextFloat() * this.saturation, 1), 0);
+        float hue = random.nextFloat();
         boolean isVerticalGradient = random.nextDouble() > 0.5;
         int ulen = isVerticalGradient ? height : width;
         int vlen = isVerticalGradient ? width : height;
@@ -312,7 +312,7 @@ public class GenSprite {
                     + (random.nextDouble() * 2 - 1)
                     + (random.nextDouble() * 2 - 1)) / 3);
             // Only change the color sometimes (values above 0.8 are less likely than others)
-            if (isNewColor > 1 - colorVariations) hue = random.nextDouble();
+            if (isNewColor > 1 - colorVariations) hue = random.nextFloat();
 
             for (int v = 0; v < vlen; v++) {
                 int val, index;
@@ -324,13 +324,16 @@ public class GenSprite {
                     index = (v * ulen + u) * 4;
                 }
 
-                double[] rgb = new double[]{1, 1, 1};
+                float[] rgb = new float[]{1, 1, 1};
 
                 if (val != 0) {
                     if (colored) {
                         // Fade brightness away towards the edges
-                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - brightnessNoise)
-                                + random.nextDouble() * brightnessNoise;
+                        float brightness = (float) Math.sin(
+                                ((float) u / (float) ulen) * Math.PI
+                        ) *
+                                (1 - brightnessNoise) + random.nextFloat() *
+                                brightnessNoise;
 
                         // Get the RGB color value
                         rgb = hslToRgb(hue, saturation, brightness);
@@ -343,15 +346,15 @@ public class GenSprite {
                         }
                     } else if (val == -1)
                         // Not colored, simply output black
-                        rgb = new double[]{0, 0, 0};
+                        rgb = new float[]{0, 0, 0};
                 }
                 pixmap.drawPixel(
                         isVerticalGradient ? v : u,
                         isVerticalGradient ? u : v,
                         Color.rgba8888(
-                                (float) rgb[0],
-                                (float) rgb[1],
-                                (float) rgb[2],
+                                rgb[0],
+                                rgb[1],
+                                rgb[2],
                                 val == 0 ? 0f : 1f
                         )
                 );
@@ -362,10 +365,10 @@ public class GenSprite {
 
     public static Pixmap generatePixmap(Mask mask,
                                         boolean colored, //=true,
-                                        double edgeBrightness, //=0.3,
-                                        double colorVariations, //=0.2,
-                                        double brightnessNoise, //=0.3,
-                                        double saturation, //=0.5,
+                                        float edgeBrightness, //=0.3,
+                                        float colorVariations, //=0.2,
+                                        float brightnessNoise, //=0.3,
+                                        float saturation, //=0.5,
                                         long SEED) //=0
     {
         return new GenSprite(mask, colored, edgeBrightness, colorVariations, brightnessNoise, saturation, SEED).generatePixmap();

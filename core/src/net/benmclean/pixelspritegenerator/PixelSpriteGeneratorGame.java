@@ -118,7 +118,7 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
                 0, 1, 1, 1, 1, -1,
                 0, 0, 0, 1, 1, 1,
                 0, 0, 0, 0, 0, 0
-        }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
+        }, 6, 12, true, false), true, 0.3f, 0.2f, 0.3f, 0.5f, SEED);
 
         pixmaptex = new Texture(pixmap);
         pixmaptex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
