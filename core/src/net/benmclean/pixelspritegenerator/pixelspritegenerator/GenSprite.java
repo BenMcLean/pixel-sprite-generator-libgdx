@@ -1,5 +1,8 @@
 package net.benmclean.pixelspritegenerator.pixelspritegenerator;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+
 import java.util.Random;
 
 /**
@@ -19,7 +22,8 @@ import java.util.Random;
  * @class Sprite
  * @constructor
  */
-public class Sprite {
+public class GenSprite {
+
     public int width;
     public int height;
     public Mask mask;
@@ -32,18 +36,18 @@ public class Sprite {
     Random random;
     long SEED;
 
-    public Sprite(int width, int height, Mask mask,
-                  boolean colored, //=true,
-                  double edgeBrightness, //=0.3,
-                  double colorVariations, //=0.2,
-                  double brightnessNoise, //=0.3,
-                  double saturation, //=0.5,
-                  long SEED) //=0
+    public GenSprite(Mask mask,
+                     boolean colored, //=true,
+                     double edgeBrightness, //=0.3,
+                     double colorVariations, //=0.2,
+                     double brightnessNoise, //=0.3,
+                     double saturation, //=0.5,
+                     long SEED) //=0
     {
-        this.width = mask.width * (mask.mirrorX ? 2 : 1);
-        this.height = mask.height * (mask.mirrorY ? 2 : 1);
+        width = mask.width * (mask.mirrorX ? 2 : 1);
+        height = mask.height * (mask.mirrorY ? 2 : 1);
         this.mask = mask;
-        this.data = new int[this.width * this.height];
+        this.data = new int[width * height];
         this.colored = colored;
         this.edgeBrightness = edgeBrightness;
         this.colorVariations = colorVariations;
@@ -60,19 +64,12 @@ public class Sprite {
      * @returns {undefined}
      */
     private void init() {
-        this.initData();
-        this.applyMask();
-        this.generateRandomSample();
-
-        if (this.mask.mirrorX) {
-            this.mirrorX();
-        }
-
-        if (this.mask.mirrorY) {
-            this.mirrorY();
-        }
-
-        this.generateEdges();
+        initData();
+        applyMask();
+        generateRandomSample();
+        if (mask.mirrorX) mirrorX();
+        if (mask.mirrorY) mirrorY();
+        generateEdges();
     }
 
     public int getWidth() {
@@ -97,7 +94,7 @@ public class Sprite {
      * @returns {undefined}
      */
     public int getData(int x, int y) {
-        return this.data[y * this.width + x];
+        return data[y * width + x];
     }
 
     /**
@@ -115,7 +112,7 @@ public class Sprite {
      * @returns {undefined}
      */
     public void setData(int x, int y, int value) {
-        this.data[y * this.width + x] = value;
+        data[y * width + x] = value;
     }
 
     /**
@@ -125,13 +122,9 @@ public class Sprite {
      * @returns {undefined}
      */
     public void initData() {
-        int h = this.height;
-        int w = this.width;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                this.setData(x, y, -1);
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(x, y, -1);
     }
 
     /**
@@ -141,13 +134,9 @@ public class Sprite {
      * @returns {undefined}
      */
     public void mirrorX() {
-        int h = this.height;
-        int w = (int) Math.floor(this.width / (double) 2);
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                this.setData(this.width - x - 1, y, this.getData(x, y));
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(width - x - 1, y, getData(x, y));
     }
 
     /**
@@ -157,13 +146,9 @@ public class Sprite {
      * @returns {undefined}
      */
     public void mirrorY() {
-        int h = (int) Math.floor(this.height / (double) 2);
-        int w = this.width;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                this.setData(x, this.height - y - 1, this.getData(x, y));
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(x, height - y - 1, getData(x, y));
     }
 
     /**
@@ -176,14 +161,9 @@ public class Sprite {
      * @returns {undefined}
      */
     public void applyMask() {
-        int h = this.mask.height;
-        int w = this.mask.width;
-
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                this.setData(x, y, this.mask.data[y * w + x]);
-            }
-        }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                setData(x, y, mask.data[y * mask.width + x]);
     }
 
     /**
@@ -200,24 +180,16 @@ public class Sprite {
      */
     public void generateRandomSample() {
         random = new Random(SEED);
-        int h = this.height;
-        int w = this.width;
-
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                int val = this.getData(x, y);
-                if (val == 1) {
-                    val = random.nextInt(2);
-                } else if (val == 2) {
-                    if (random.nextDouble() > 0.5) {
-                        val = 1;
-                    } else {
-                        val = -1;
-                    }
+        for (int y = 0; y < mask.height; y++)
+            for (int x = 0; x < mask.width; x++)
+                switch (getData(x, y)) {
+                    case 1:
+                        setData(x, y, random.nextInt(2));
+                        break;
+                    case 2:
+                        setData(x, y, random.nextDouble() > 0.5 ? 1 : -1);
+                        break;
                 }
-                this.setData(x, y, val);
-            }
-        }
     }
 
     /**
@@ -228,26 +200,19 @@ public class Sprite {
      * @returns {undefined}
      */
     public void generateEdges() {
-        int h = this.height;
-        int w = this.width;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                if (this.getData(x, y) > 0) {
-                    if (y - 1 >= 0 && this.getData(x, y - 1) == 0) {
-                        this.setData(x, y - 1, -1);
-                    }
-                    if (y + 1 < this.height && this.getData(x, y + 1) == 0) {
-                        this.setData(x, y + 1, -1);
-                    }
-                    if (x - 1 >= 0 && this.getData(x - 1, y) == 0) {
-                        this.setData(x - 1, y, -1);
-                    }
-                    if (x + 1 < this.width && this.getData(x + 1, y) == 0) {
-                        this.setData(x + 1, y, -1);
-                    }
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++) {
+                if (getData(x, y) > 0) {
+                    if (y - 1 >= 0 && getData(x, y - 1) == 0)
+                        setData(x, y - 1, -1);
+                    if (y + 1 < height && getData(x, y + 1) == 0)
+                        setData(x, y + 1, -1);
+                    if (x - 1 >= 0 && getData(x - 1, y) == 0)
+                        setData(x - 1, y, -1);
+                    if (x + 1 < width && getData(x + 1, y) == 0)
+                        setData(x + 1, y, -1);
                 }
             }
-        }
     }
 
     /**
@@ -296,19 +261,12 @@ public class Sprite {
      */
     public int[] renderPixelData() {
         random = new Random(SEED);
-        boolean isVerticalGradient = random.nextDouble() > 0.5;
+        int[] pixels = new int[width * height * 4];
         double saturation = Math.max(Math.min(random.nextDouble() * this.saturation, 1), 0);
         double hue = random.nextDouble();
-        int[] pixels = new int[height * width * 4];
-
-        int ulen, vlen;
-        if (isVerticalGradient) {
-            ulen = this.height;
-            vlen = this.width;
-        } else {
-            ulen = this.width;
-            vlen = this.height;
-        }
+        boolean isVerticalGradient = random.nextDouble() > 0.5;
+        int ulen = isVerticalGradient ? height : width;
+        int vlen = isVerticalGradient ? width : height;
 
         for (int u = 0; u < ulen; u++) {
             // Create a non-uniform random number between 0 and 1 (lower numbers more likely)
@@ -316,73 +274,118 @@ public class Sprite {
                     + (random.nextDouble() * 2 - 1)
                     + (random.nextDouble() * 2 - 1)) / 3);
             // Only change the color sometimes (values above 0.8 are less likely than others)
-            if (isNewColor > (1 - this.colorVariations)) {
-                hue = random.nextDouble();
-            }
-
-            //MessageBox.Show(this.toString());
+            if (isNewColor > 1 - colorVariations) hue = random.nextDouble();
 
             for (int v = 0; v < vlen; v++) {
                 int val, index;
                 if (isVerticalGradient) {
-                    val = this.getData(v, u);
+                    val = getData(v, u);
                     index = (u * vlen + v) * 4;
                 } else {
-                    val = this.getData(u, v);
+                    val = getData(u, v);
                     index = (v * ulen + u) * 4;
                 }
 
                 double[] rgb = new double[]{1, 1, 1};
 
                 if (val != 0) {
-                    if (this.colored) {
+                    if (colored) {
                         // Fade brightness away towards the edges
-                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - this.brightnessNoise)
-                                + random.nextDouble() * this.brightnessNoise;
+                        double brightness = Math.sin(((double) u / (double) ulen) * Math.PI) * (1 - brightnessNoise)
+                                + random.nextDouble() * brightnessNoise;
 
                         // Get the RGB color value
-                        rgb = this.hslToRgb(hue, saturation, brightness);
+                        rgb = hslToRgb(hue, saturation, brightness);
 
                         // If this is an edge, then darken the pixel
                         if (val == -1) {
-                            rgb[0] *= this.edgeBrightness;
-                            rgb[1] *= this.edgeBrightness;
-                            rgb[2] *= this.edgeBrightness;
+                            rgb[0] *= edgeBrightness;
+                            rgb[1] *= edgeBrightness;
+                            rgb[2] *= edgeBrightness;
                         }
-
-                    } else {
+                    } else if (val == -1)
                         // Not colored, simply output black
-                        if (val == -1) {
-                            rgb = new double[]{0, 0, 0};
-                        }
-                    }
+                        rgb = new double[]{0, 0, 0};
                 }
 
                 pixels[index + 0] = (int) (rgb[0] * 255);
                 pixels[index + 1] = (int) (rgb[1] * 255);
                 pixels[index + 2] = (int) (rgb[2] * 255);
-                if (val != 0) {
-                    pixels[index + 3] = 255;
-                } else {
-                    pixels[index + 3] = 0;
-                }
+                pixels[index + 3] = val == 0 ? 0 : 255;
             }
         }
-
         return pixels;
     }
 
     public String toString() {
-        int h = this.height;
-        int w = this.width;
         String output = "";
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                double val = this.getData(x, y);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double val = getData(x, y);
                 output += val >= 0 ? " " + val : "" + val;
             }
             output += '\n';
         }
         return output;
+    }
+
+    /**
+     * The Mask class defines a 2D template form which sprites can be generated.
+     *
+     * @param {data}    Integer array describing which parts of the sprite should be
+     *                  empty, body, and border. The mask only defines a semi-ridgid stucture
+     *                  which might not strictly be followed based on randomly generated numbers.
+     *                  <p>
+     *                  -1 = Always border (black)
+     *                  0 = Empty
+     *                  1 = Randomly chosen Empty/Body
+     *                  2 = Randomly chosen Border/Body
+     * @param {width}   Width of the mask data array
+     * @param {height}  Height of the mask data array
+     * @param {mirrorX} A boolean describing whether the mask should be mirrored on the x axis
+     * @param {mirrorY} A boolean describing whether the mask should be mirrored on the y axis
+     * @class Mask
+     * @constructor
+     */
+    public static class Mask {
+        public int width;
+        public int height;
+        public int[] data;
+        public boolean mirrorX;
+        public boolean mirrorY;
+
+        public Mask(int[] data, int width, int height, boolean mirrorX, boolean mirrorY) {
+            this.width = width;
+            this.height = height;
+            this.data = data;
+            this.mirrorX = mirrorX;
+            this.mirrorY = mirrorY;
+        }
+    }
+
+    public Pixmap generatePixmap() {
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        int[] spritePixels = renderPixelData();
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++) {
+                int i = (width * y + x) * 4;
+                int red = spritePixels[i];
+                int green = spritePixels[i + 1];
+                int blue = spritePixels[i + 2];
+                int alpha = spritePixels[i + 3];
+                pixmap.drawPixel(x, y, Color.rgba8888(red / 255f, green / 255f, blue / 255f, alpha / 255f));
+            }
+        return pixmap;
+    }
+
+    public static Pixmap generatePixmap(Mask mask,
+                                        boolean colored, //=true,
+                                        double edgeBrightness, //=0.3,
+                                        double colorVariations, //=0.2,
+                                        double brightnessNoise, //=0.3,
+                                        double saturation, //=0.5,
+                                        long SEED) //=0
+    {
+        return new GenSprite(mask, colored, edgeBrightness, colorVariations, brightnessNoise, saturation, SEED).generatePixmap();
     }
 }

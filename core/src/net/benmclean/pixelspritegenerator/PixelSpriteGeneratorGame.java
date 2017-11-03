@@ -2,7 +2,6 @@ package net.benmclean.pixelspritegenerator;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,13 +15,12 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
-import net.benmclean.pixelspritegenerator.pixelspritegenerator.Mask;
-import net.benmclean.pixelspritegenerator.pixelspritegenerator.Sprite;
+import net.benmclean.pixelspritegenerator.pixelspritegenerator.GenSprite;
 
 public class PixelSpriteGeneratorGame extends ApplicationAdapter {
     private long SEED;
     private SpriteBatch batch;
-	private Texture pixmaptex;
+    private Texture pixmaptex;
     private Stage stage;
     private Stage uiStage;
     private VisTable table;
@@ -30,12 +28,12 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
     private VisTextButton seedButton;
     private VisTextButton timerButton;
 
-	@Override
-	public void create () {
+    @Override
+    public void create() {
         VisUI.load();
         batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport(), batch);
-        uiStage = new Stage(new FitViewport(640,320));
+        uiStage = new Stage(new FitViewport(640, 320));
         Gdx.input.setInputProcessor(uiStage);
 
         table = new VisTable();
@@ -51,8 +49,9 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 try {
                     newSprite(Long.parseLong(seedTextField.getText()));
+                } catch (NumberFormatException exception) {
                 }
-                catch (NumberFormatException exception){};
+                ;
                 return true;
             }
         });
@@ -71,70 +70,57 @@ public class PixelSpriteGeneratorGame extends ApplicationAdapter {
         uiStage.addActor(table);
 
         newSprite();
-	}
+    }
 
-    public void resize (int width, int height) {
+    public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
         uiStage.getViewport().update(width, height, true);
         VisUI.getSizes().scaleFactor = 999999;
         newSprite(0);
     }
 
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
+    @Override
+    public void render() {
+        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
         final float scale = stage.getViewport().getScreenHeight() * 0.75f;
-        batch.draw(pixmaptex, scale/12, scale/12, scale, scale);
-		batch.end();
+        batch.draw(pixmaptex, scale / 12, scale / 12, scale, scale);
+        batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
         uiStage.act(Gdx.graphics.getDeltaTime());
         uiStage.draw();
-	}
+    }
 
-    public void dispose () {
+    public void dispose() {
         stage.dispose();
         VisUI.dispose();
     }
 
-    public void newSprite () {newSprite(System.currentTimeMillis());}
+    public void newSprite() {
+        newSprite(System.currentTimeMillis());
+    }
 
-    public void newSprite (long SEED) {
+    public void newSprite(long SEED) {
         this.SEED = SEED;
         seedTextField.setText(Long.toString(SEED));
-        Sprite sprite = new Sprite(12, 12, new Mask(new int[]{
+        Pixmap pixmap = GenSprite.generatePixmap(new GenSprite.Mask(new int[]{
                 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 1, 1,
-                0, 0, 0, 0, 1,-1,
-                0, 0, 0, 1, 1,-1,
-                0, 0, 0, 1, 1,-1,
-                0, 0, 1, 1, 1,-1,
+                0, 0, 0, 0, 1, -1,
+                0, 0, 0, 1, 1, -1,
+                0, 0, 0, 1, 1, -1,
+                0, 0, 1, 1, 1, -1,
                 0, 1, 1, 1, 2, 2,
                 0, 1, 1, 1, 2, 2,
                 0, 1, 1, 1, 2, 2,
-                0, 1, 1, 1, 1,-1,
+                0, 1, 1, 1, 1, -1,
                 0, 0, 0, 1, 1, 1,
                 0, 0, 0, 0, 0, 0
         }, 6, 12, true, false), true, 0.3, 0.2, 0.3, 0.5, SEED);
 
-        Pixmap pixmap = new Pixmap(sprite.getHeight(), sprite.getWidth(), Pixmap.Format.RGBA8888 );
-        int[] spritePixels = sprite.renderPixelData();
-        int height = sprite.getHeight();
-        int width = sprite.getWidth();
-
-        for (int x=0; x<height; x++)
-            for (int y=0; y<width; y++) {
-                int i = (width * y + x)*4;
-                int red = spritePixels[i];
-                int green = spritePixels[i + 1];
-                int blue = spritePixels[i + 2];
-                int alpha = spritePixels[i + 3];
-                pixmap.drawPixel(x, y, Color.rgba8888(red/255f,green/255f,blue/255f,alpha/255f));
-            }
-
-        pixmaptex = new Texture( pixmap );
+        pixmaptex = new Texture(pixmap);
         pixmaptex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         pixmap.dispose();
     }
